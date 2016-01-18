@@ -2,10 +2,12 @@
 title: "Pedagogy model"
 output:
   html_document:
-    toc: true
     theme: spacelab
+    toc: yes
+  pdf_document:
+    toc: yes
 ---
-  
+
 ```{r Load data and packages, echo=FALSE}
 library(dplyr, quietly=T, warn.conflicts=F)
 library(ggplot2, quietly=T, warn.conflicts=F)
@@ -13,8 +15,8 @@ library(ggvis, quietly=T, warn.conflicts=F)
 library(tidyr, quietly=T, warn.conflicts=F)
 library(knitr, quietly=T, warn.conflicts=F)
 library(boot, quietly=T, warn.conflicts=F)
-setwd("~/Documents/Projects/Models/Pedagogy/Modeling/")
-data <- read.csv("ModelResults.csv") %>% tbl_df %>% mutate(Model=paste(Learn,Teach,Discover))
+setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/")
+data <- read.csv("ModelPredictions.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR))
 levels(data$Condition)=c("1: Equal\nCosts","4: Inverted\nRewards","3: Matched\nRewards","2: Unequal\nCosts")
 data$Condition<-as.character(data$Condition)
 data$ExploreProb<-factor(data$ExploreProb)
@@ -22,174 +24,131 @@ levels(data$ExploreProb)=c("Exploration\nuncertainty","Exploration\ncertainty")
 levels(data$TeacherReward)=c("Constant\nteacher reward","Variable\nteacher reward")
 levels(data$Decision)=c("2: Either","3: Red toy","1: Yellow toy")
 data$Decision<-as.character(data$Decision)
-# Using prior
-#Summarydata<-data %>%
-#dplyr::group_by(ExploreProb,TeacherReward,Condition,Decision,Model) %>%
-#dplyr::summarise(proportion=sum(Prior))
 Summarydata<-data %>%
 dplyr::group_by(ExploreProb,TeacherReward,Condition,Decision,Model) %>%
 dplyr::summarise(proportion=n())
 ```
 
-# Model predictions
+# Main models
 
-## Model 000
+## Model 00_00_00
 
 Ignore learner's utility with taught toy.
 
-Ignore teacher's utility.
-
 Ignore learner's utility with untaught toy.
 
-### Notes
-
-The teacher reward type doesn't matter because the model ignore's the teacher's utility. The exploration uncertainty doesn't matter because the model ignores the learner's utility with the untaught toy.
-
-```{r Plot_000, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_000000, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="0 0 0") %>%
+  filter(Model=="0 0 0 0 0 0") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#00B554"))
 ```
 
-## Model 001
+## Model 00_00_11
 
 Ignore learner's utility with taught toy.
 
-Ignore teacher's utility.
-
 Use learner's utility with untaught toy.
 
-### Notes
-
-Teacher reward type doesn't matter because the model ignores the teacher. The exploration uncertainty condition doesn't affect model predictions because the model *only* takes learner's utility with untaught toy into account. So the utility function just gets scaled by the probability of exploration. Scaling the exploration utilities by the probability that the child will explore only matters when this utilities get combined with other utilities (the teacher and the learner's utilities with the toy they teach/learn).
-
-Model interpretation:
-
-Unequal costs: Discovering how the red toy works has a higher utility (RedToyReward - Discovery cost for red toy) then discovering how the yellow toy works (YellowToyReard - Discovery cost for yellow toy). Therefore teach the yellow toy.
-
-Equal costs: If both toys have the same cost, teach the one with the smaller reward, so the child gets to discover the cooler toy. Some noise because of the disagreement on which toy is cooler. The noise from the disagreement about which toy is cooler doesn't play a role in the past condition because the expected cost for discovering how the yellow toy works is way higher than the cost for discovering how they red toy works.
-
-Matched rewards: If the rewards are the same, teach the most complex toy so the child plays with the other one.
-
-Inverted rewards: The model always chooses the yellow toy because the expected cost for discovering how that toy works is too high, even if it produces a cooler reward. This is something that we could change in the code: we could have the reward for the light to be potentially high enough that even after paying the discovery cost for figuring out how to make the complex toy work by yourself it's still worth it.
-
-
-```{r Plot_001, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_000011, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="0 0 1") %>%
+  filter(Model=="0 0 0 0 1 1") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
 
-## Model 010
+## Model 11_00_00
 
-Ignore learner's utility with taught toy.
-
-Use teacher's utility.
+Use learner's utility with taught toy.
 
 Ignore learner's utility with untaught toy.
 
-### Notes
-
-Because this model only cares about the teacher's experience, the exploration uncertainty variable doesn't matter (rows), but the teacher's reward does (columns). When the teacher's reward is constant, it makes sense to always choose whatever is easiest to teach. When the teacher's reward is variable, you get a push for teaching the cooler toy in all conditions.
-
-```{r Plot_010, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_110000, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="0 1 0") %>%
+  filter(Model=="1 1 0 0 0 0") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
 
-## Model 100
+## Model 11_00_11
 
 Use learner's utility with taught toy.
-
-Ignore teacher's utility.
 
 Ignore learner's utility with untaught toy.
 
-### Notes
-
-If you only care about the toy the teacher learns then you should always teach the coolest toy since once the child knows how to make it work the cost is small.
-
-```{r Plot_100, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_110011, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="1 0 0") %>%
+  filter(Model=="1 1 0 0 1 1") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
 
-## Model 011
+# Cost-Reward exploration
 
-Ignore learner's utility with taught toy.
+## Model 01_00_01
 
-Use teacher's utility.
+Use rewards only
 
-Use learner's utility with untaught toy.
-
-### Notes
-
-if the teacher gets a reward when s/he sees the toy she teaches (Variable teacher reward), then all conditions include the rewards from both boys (the teacher gets the reward for the toy s/he teachers and the learner gets the rewards for the toy s/he discovers). If we're certain that the child will explore the other toy (bottom right subplot) then the teacher should always choose the more difficult toy (to minimize the child's discovery cost). If there's uncertainty whether the child will explore the other toy (top right subplot) the model continues to favor teaching the more complex toy (this would change if the probability that the child is going to explore the other toy were very very low) and it switches to teaching the cooler toy.
-
-When the teacher gets a constant reward (left subplots) it's still preferable to teach the more complex toy because the teacher is considering the cost of the child when s/he explores the untaught toy. The equal costs condition changes because now the teacher prefers to teach the less cool toy (since the teacher gets the same reward no matter what s/he teachers, so the utility increases when the child discovers how the other toy works).
-
-```{r Plot_011, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_010001, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="0 1 1") %>%
+  filter(Model=="0 1 0 0 0 1") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
 
-## Model 101
+## Model 10_00_10
 
-Use learner's utility with taught toy.
+Use costs only
 
-Ignore teacher's utility.
-
-Use learner's utility with untaught toy.
-
-### Notes
-
-It always makes sense to teach the yellow toy in experiments 1, 3, and 4 because the exploration cost for the red toy is much lower. In the equal costs condition there's no difference which toy you teach (the rewards from both toys get added up if you're certain the child will explore afterwards). But if there's uncertainty about whether the child will play with the other toy at all, it makes more sense to teach the cooler toy.
-
-```{r Plot_101, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_100010, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="1 0 1") %>%
+  filter(Model=="1 0 0 0 1 0") %>%
+  ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
+  theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554"))
+```
+
+# Teacher exploration
+
+## Model 10_10_10
+
+Use everyone's costs
+
+```{r Plot_101010, echo=FALSE, fig.width = 10, fig.height = 5}
+Summarydata %>%
+  filter(Model=="1 0 1 0 1 0") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
 
-## Model 110
+## Model 11_10_11
 
-Use learner's utility with taught toy.
+Everything about learner, and teacher's costs
 
-Use teacher's utility.
-
-Ignore learner's utility with untaught toy.
-
-### Notes
-
-```{r Plot_110, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_111011, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="1 1 0") %>%
+  filter(Model=="1 1 1 0 1 1") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
 
-## Model 111
+## Model 11_01_11
 
-Use learner's utility with taught toy.
+Everything about learner, and teacher's rewards
 
-Use teacher's utility.
-
-Use learner's utility with untaught toy.
-
-### Notes
-
-```{r Plot_111, echo=FALSE, fig.width = 10, fig.height = 5}
+```{r Plot_110111, echo=FALSE, fig.width = 10, fig.height = 5}
 Summarydata %>%
-  filter(Model=="1 1 1") %>%
+  filter(Model=="1 1 0 1 1 1") %>%
+  ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
+  theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
+```
+
+## Model 11_11_11
+
+Everything about everything
+
+```{r Plot_111111, echo=FALSE, fig.width = 10, fig.height = 5}
+Summarydata %>%
+  filter(Model=="1 1 1 1 1 1") %>%
   ggplot(aes(x=Condition,y=proportion,fill=Decision))+geom_bar(color="black",stat="identity")+facet_grid(ExploreProb~TeacherReward)+
   theme_bw()+scale_fill_manual(values=c("#EBE549","#00B554","#C7363D"))
 ```
