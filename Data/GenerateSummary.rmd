@@ -19,7 +19,8 @@ library(boot, quietly=T, warn.conflicts=F)
 setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/Data/")
 dataA <- read.csv("ModelPredictions_FullJoint.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR))
 dataB <- read.csv("ModelPredictions_UncertaintySearch.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR))
-data<-rbind(dataA,dataB)
+dataC <- read.csv("ModelPredictions_TeacherReward.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR))
+data<-rbind(dataA,dataB,dataC)
 levels(data$Condition)=c("1: Equal\nCosts","4: Inverted\nRewards","3: Matched\nRewards","2: Unequal\nCosts")
 data$Condition<-as.character(data$Condition)
 data$ExploreProb<-factor(data$ExploreProb)
@@ -27,7 +28,7 @@ levels(data$ExploreProb)=c(".25 Exploration",".5 Exploration",".75 Exploration",
 levels(data$TeacherReward)=c("Constant\nteacher reward","Variable\nteacher reward")
 levels(data$Decision)=c("Either","Red toy","Yellow toy")
 Summarydata<-plyr::ddply(data,c("ExploreProb","TeacherReward","Condition","Model"),function(x){return(data.frame(table(x$Decision)))}) %>% tbl_df %>% dplyr::rename(Decision=Var1)
-# Get total by subselecting one set
+# Get total number of samples (for normalizing later) by subselecting one set
 Total<-Summarydata %>% filter(ExploreProb==".5 Exploration",
                        TeacherReward=="Constant\nteacher reward",
                        Condition=="1: Equal\nCosts",
@@ -47,6 +48,8 @@ Model predictions as a function of exploration certainty. Values 0.25, 0.5, 0.75
 
 ```{r MegaSummaryb, echo=FALSE, fig.width = 15, fig.height = 5}
 ModelSpace=c("1 1 0 0 1 1","1 0 0 0 1 0","0 1 0 0 0 1","1 1 0 0 0 0","0 0 0 0 1 1")
+
+#ModelSpace=c("1 1 0 1 1 1","1 0 0 1 1 0","0 1 0 1 0 1","1 1 0 1 0 0","0 0 0 1 1 1")
 
 Tempdat<-Simpledata %>% filter(Model %in% ModelSpace)
 Tempdat$Model<-factor(Tempdat$Model)
