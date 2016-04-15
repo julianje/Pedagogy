@@ -18,6 +18,13 @@ class Toy(object):
             print "Error: Reward must be positive"
             return None
         self.reward = reward
+        self.expcost = None
+        # Hacky code. I already know the expected cost so no need to keep
+        # recomputing it!
+        if self.buttons == 6 and length(self.action) == 2:
+            self.expcost = -22.063199999999998
+        if self.buttons == 1 and length(self.action) == 1:
+            self.expcost = -1
 
     def Play(self, action):
         # The cost is linear as a function of presses.
@@ -34,23 +41,27 @@ class Toy(object):
     def Discover(self, samples=1000):
         # Get expected cost by assuming that learner starts with the simplest
         # hypotheses
-        costs = [0] * samples
-        for i in range(samples):
-            complete = False
-            sequencelength = 0
-            while(True):
-                sequencelength += 1
-                Actions = self.ActionSpace(sequencelength)
-                random.shuffle(Actions)
-                for attempt in Actions:
-                    [c, r] = self.Play(attempt)
-                    costs[i] += c
-                    if r != 0:
-                        complete = True
+        if self.expcost is not None:
+            return ([self.expcost, self.reward])
+        else:
+            costs = [0] * samples
+            for i in range(samples):
+                complete = False
+                sequencelength = 0
+                while(True):
+                    sequencelength += 1
+                    Actions = self.ActionSpace(sequencelength)
+                    random.shuffle(Actions)
+                    for attempt in Actions:
+                        [c, r] = self.Play(attempt)
+                        costs[i] += c
+                        if r != 0:
+                            complete = True
+                            break
+                    if complete:
                         break
-                if complete:
-                    break
-        return([np.mean(costs), self.reward])
+            self.expcost = np.mean(costs)
+        return([self.expcost, self.reward])
 
     def Teach(self, rewardtype="Constant"):
         #############################
