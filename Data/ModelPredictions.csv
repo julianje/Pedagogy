@@ -1,0 +1,21 @@
+Condition,Model,Red toy,Yellow toy
+"1: EqualCosts","Novelonly",25.66958366,74.33041634
+"2: UnequalCosts","Novelonly",6.961018298,93.0389817
+"3: MatchedRewards","Novelonly",0,100
+"4: InvertedRewards","Novelonly",51.49827632,48.50172368
+"1: EqualCosts","Rewardsonly",74.33041634,25.66958366
+"2: UnequalCosts","Rewardsonly",74.33041634,25.66958366
+"3: MatchedRewards","Rewardsonly",50,50
+"4: InvertedRewards","Rewardsonly",25.66958366,74.33041634
+"1: EqualCosts","Costsonly",50,50
+"2: UnequalCosts","Costsonly",0,100
+"3: MatchedRewards","Costsonly",0,100
+"4: InvertedRewards","Costsonly",0,100
+"1: EqualCosts","Learnedonly",74.33041634,25.66958366
+"2: UnequalCosts","Learnedonly",74.91381596,25.08618404
+"3: MatchedRewards","Learnedonly",100,0
+"4: InvertedRewards","Learnedonly",26.25298329,73.74701671
+"1: EqualCosts","Fullmodel",74.33041634,25.66958366
+"2: UnequalCosts","Fullmodel",52.50596659,47.49403341
+"3: MatchedRewards","Fullmodel",0,100
+"4: InvertedRewards","Fullmodel",7.637231504,92.3627685
