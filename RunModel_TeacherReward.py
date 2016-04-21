@@ -15,7 +15,7 @@ def GetChoicesMainModels(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy
     # Parameters: Learner cost, learner reward, teacher cost, teacher reward, discover cost, discover reward
     # Four main models: Use/Ignore learner's utility. Use/Ignore learner's
     # exploration
-    A_01 = Agent([ToyA, ToyB], 0, 0, 0, 1, 1, 1, ExploreProb,
+    A_01 = Agent([ToyA, ToyB], 0, 0, 0, 0, 1, 1, ExploreProb,
                  [ToyAName, ToyBName], teacherreward).Teach()
     A_10 = Agent([ToyA, ToyB], 1, 1, 0, 1, 0, 0, ExploreProb,
                  [ToyAName, ToyBName], teacherreward).Teach()
@@ -25,7 +25,7 @@ def GetChoicesMainModels(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy
         sys.stdout.write("Condition,"+str(ToyAName)+"Reward,"+str(ToyBName) +
                          "Reward,LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR,ExploreProb,TeacherReward,Decision\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",0,0,0,1,1,1," + str(ExploreProb) + "," + str(teacherreward) + "," + str(A_01) + "\n")
+                     str(ToyB.reward) + ",0,0,0,0,1,1," + str(ExploreProb) + "," + str(teacherreward) + "," + str(A_01) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
                      str(ToyB.reward) + ",1,1,0,1,0,0," + str(ExploreProb) + "," + str(teacherreward) + "," + str(A_10) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
@@ -42,7 +42,7 @@ def GetChoicesCRModels(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy0"
     # Parameters: Learner cost, learner reward, teacher cost, teacher reward, discover cost, discover reward
     # Four main models: Use/Ignore learner's costs. Use/Ignore learner's
     # rewards
-    A_01 = Agent([ToyA, ToyB], 1, 0, 0, 1, 1, 0, ExploreProb,
+    A_01 = Agent([ToyA, ToyB], 1, 0, 0, 0, 1, 0, ExploreProb,
                  [ToyAName, ToyBName], teacherreward).Teach()
     A_10 = Agent([ToyA, ToyB], 0, 1, 0, 1, 0, 1, ExploreProb,
                  [ToyAName, ToyBName], teacherreward).Teach()
@@ -50,7 +50,7 @@ def GetChoicesCRModels(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy0"
         sys.stdout.write("Condition,"+str(ToyAName)+"Reward,"+str(ToyBName) +
                          "Reward,LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR,ExploreProb,TeacherReward,Decision\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",1,0,0,1,1,0," + str(ExploreProb) + "," + str(teacherreward) + "," + str(A_01) + "\n")
+                     str(ToyB.reward) + ",1,0,0,0,1,0," + str(ExploreProb) + "," + str(teacherreward) + "," + str(A_01) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
                      str(ToyB.reward) + ",0,1,0,1,0,1," + str(ExploreProb) + "," + str(teacherreward) + "," + str(A_10) + "\n")
 
