@@ -1,0 +1,200 @@
+---
+title: "Pedagogy model"
+output:
+  html_document:
+    theme: spacelab
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r Load data and packages, echo=FALSE}
+library(plyr, quietly=T, warn.conflicts=F)
+library(dplyr, quietly=T, warn.conflicts=F)
+library(ggplot2, quietly=T, warn.conflicts=F)
+library(ggvis, quietly=T, warn.conflicts=F)
+library(tidyr, quietly=T, warn.conflicts=F)
+library(knitr, quietly=T, warn.conflicts=F)
+library(boot, quietly=T, warn.conflicts=F)
+library(ggthemes, quietly=T, warn.conflicts=F)
+setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/Data/")
+data <- read.csv("ModelPredictions_TeacherReward.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,TeachC,TeachR,DiscoverC,DiscoverR))
+levels(data$Condition)=c("1: Equal\nCosts","4: Inverted\nRewards","3: Matched\nRewards","2: Unequal\nCosts")
+data$Condition<-as.character(data$Condition)
+data$ExploreProb<-factor(data$ExploreProb)
+levels(data$Decision)=c("Either","Red toy","Yellow toy")
+Summarydata<-plyr::ddply(data,c("ExploreProb","TeacherReward","Condition","Model"),function(x){return(data.frame(table(x$Decision)))}) %>% tbl_df %>% dplyr::rename(Decision=Var1)
+# Get total number of samples (for normalizing later) by subselecting one set
+Total<-Summarydata %>% filter(ExploreProb=="1",
+                       TeacherReward=="Variable",
+                       Condition=="1: Equal\nCosts",
+                       Model=="0 0 0 0 1 1") %>% select(Freq) %>% sum
+Summarydata <- Summarydata %>% mutate(Percentage=Freq*100/Total) %>% select(-Freq)
+# Create alternate data frame where either gets split into the other two categories (as children will choose at random).
+ConcreteChoices <- Summarydata %>% filter(Decision %in% c("Yellow toy","Red toy"))
+NoPref <- Summarydata %>% filter(Decision %in% c("Either")) %>% mutate(PercAdd=Percentage/2) %>% select(-Percentage,-Decision)
+Simpledata <- full_join(ConcreteChoices,NoPref,by=c("ExploreProb","TeacherReward","Condition","Model")) %>% mutate(Perc=Percentage+PercAdd) %>% select(-Percentage,-PercAdd)
+rm(ConcreteChoices,NoPref,data)
+```
+
+# Full model predictions
+
+Model predictions as a function of exploration certainty. Values 0.25, 0.5, 0.75, and 1 indicate the probability that the learner will explore the untaught toy.
+
+```{r MegaSummaryb, echo=FALSE, fig.width = 15, fig.height = 5}
+ModelSpace=c("0 0 0 0 1 1","0 1 0 1 0 1","1 0 0 0 1 0","1 1 0 1 0 0","1 1 0 1 1 1")
+Tempdat<-Simpledata %>% filter(Model %in% ModelSpace)
+Tempdat$Model<-factor(Tempdat$Model)
+levels(Tempdat$Model)=c("Novel\nonly","Rewards\nonly","Costs\nonly","Learned\nonly","Full\nmodel")
+Tempdat$Decision<-as.character(Tempdat$Decision)
+Tempdat %>% ggplot(aes(x=Condition,y=Perc,fill=Decision))+geom_bar(stat="identity")+facet_grid(Model~ExploreProb)+theme_bw()+scale_fill_manual(values=c("#C7363D","#EBE549"))+scale_y_continuous("Percentage\nof choices")
+```
+
+# Model fits
+
+## Alpha = 0.1
+
+```{r GetLikC, echo=FALSE, fig.width = 10}
+
+ModelSpace=c("0 0 0 0 1 1","0 1 0 1 0 1","1 0 0 0 1 0","1 1 0 1 0 0","1 1 0 1 1 1")
+# Get probability of choosing red toy.
+Probs <- Simpledata %>% filter(TeacherReward=="Variable",ExploreProb=="1",Decision=="Red toy") %>% mutate(Prob=Perc/100) %>% select(-TeacherReward,-ExploreProb,-Decision,-Perc)
+# Load experiment results
+Empirical<-read.csv("EmpiricalData.csv") %>% tbl_df
+levels(Empirical$Condition)=c("1: Equal\nCosts","2: Unequal\nCosts","3: Matched\nRewards","4: Inverted\nRewards")
+Empirical$Condition<-as.character(Empirical$Condition)
+Probs$Condition<-as.character(Probs$Condition)
+
+
+NoiseParam=0.01
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T1<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.05
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T2<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.1
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+DetailedProbs<-ProbsB
+T3<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.2
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T4<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.3
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T5<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.4
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T6<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.5
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T7<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.6
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T8<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.7
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T9<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.8
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T10<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.9
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T11<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.95
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T12<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+NoiseParam=0.99
+ProbsB <- full_join(Probs,Empirical,by="Condition") %>%
+  dplyr::mutate(NoiseProb=(1-NoiseParam)*Prob+NoiseParam/2)
+ProbsB<-plyr::ddply(ProbsB,c("Condition","Model","Prob","RedToy","SampleSize","NoiseProb"),function(x){binom.test(x$RedToy,x$SampleSize,x$NoiseProb)$p.value}) %>% dplyr::rename(Likelihood=V1) %>% tbl_df
+T13<-ProbsB %>% dplyr::group_by(Model) %>%
+  dplyr::summarise(Likelihood=prod(Likelihood)) %>%
+  ungroup %>% mutate(Noise=NoiseParam)
+
+```
+
+# Likelihood per condition
+
+Likelihood of each model generating the data
+
+```{r DetailedProbs, echo=FALSE, fig.width = 15}
+# Get probability of choosing red toy.
+DetailedProbs$Model<-factor(DetailedProbs$Model)
+levels(DetailedProbs$Model)=c("Untaught toy","Rewards only","Costs only","Taught toy","Full model")
+DetailedProbs %>% ggplot(aes(x=Condition,y=Model,fill=Likelihood,label=Likelihood))+geom_tile()+geom_text()+theme_bw()
+```
+
+# Noise summary
+
+```{r NoiseSum, echo=FALSE, fig.width = 10}
+# Get probability of choosing red toy.
+NoiseSum<-rbind(T1,T2,T3,T4,T5,T6,T7,T8,T9,T10,T11,T12,T13)
+NoiseSum$Model<-factor(NoiseSum$Model)
+levels(NoiseSum$Model)=c("Untaught-only","Rewards-only","Costs-only","Taught-only","Full model")
+NoiseSum %>% ggplot(aes(x=Noise,y=log(Likelihood),color=Model,group=Model))+geom_point()+geom_line()+
+  ggtitle("Model likelihood as a function of noise")+scale_y_continuous("Log-likelihood")+theme_tufte()
+```
+
+```{r LikelihoodRatio, echo=FALSE, fig.width = 10}
+NoiseSum %>% filter(Noise=="0.1") %>% mutate(baseL=0.002185126,Ratio=baseL/Likelihood) %>% select(Model,Ratio) %>% kable
+```
