@@ -1,21 +1,0 @@
-Condition,Model,Prob,RedToy,SampleSize,NoiseProb,Likelihood"1: Equal
-Costs",Untaugh toy only,0.256695837,17,26,0.281026253,8.41E-05"1: Equal
-Costs",Rewards only,0.743304163,17,26,0.718973747,0.512811854"1: Equal
-Costs",Costs only,0.5,17,26,0.5,0.168637544"1: Equal
-Costs",Taugh toy only,0.743304163,17,26,0.718973747,0.512811854"1: Equal
-Costs",Full model,0.743304163,17,26,0.718973747,0.512811854"2: Unequal
-Costs",Untaugh toy only,0.069742774,10,25,0.112768496,0.000217253"2: Unequal
-Costs",Rewards only,0.743304163,10,25,0.718973747,0.001109616"2: Unequal
-Costs",Costs only,0,10,25,0.05,1.59E-07"2: Unequal
-Costs",Taugh toy only,0.754839565,10,25,0.729355609,0.000922871"2: Unequal
-Costs",Full model,0.535269159,10,25,0.531742243,0.229880286"3: Matched
-Rewards",Untaugh toy only,0,4,25,0.05,0.034090601"3: Matched
-Rewards",Rewards only,0.5,4,25,0.5,0.000910521"3: Matched
-Rewards",Costs only,0,4,25,0.05,0.034090601"3: Matched
-Rewards",Taugh toy only,1,4,25,0.95,4.96E-24"3: Matched
-Rewards",Full model,0,4,25,0.05,0.034090601"4: Inverted
-Rewards",Untaugh toy only,0.515247945,4,25,0.51372315,0.000411484"4: Inverted
-Rewards",Rewards only,0.256695837,4,25,0.281026253,0.264393686"4: Inverted
-Rewards",Costs only,0,4,25,0.05,0.034090601"4: Inverted
-Rewards",Taugh toy only,0.268363829,4,25,0.291527446,0.188077321"4: Inverted
-Rewards",Full model,0.082206311,4,25,0.12398568,0.542124466
