@@ -4,11 +4,10 @@ import sys
 
 class Agent(object):
 
-    def __init__(self, toys=[], LearnC=1, LearnR=1, TeachC=1, TeachR=1, DiscoverC=1, DiscoverR=1, ExploreProb=1, toynames=[0, 1], teacherreward="Constant"):
+    def __init__(self, toys=[], LearnC=1, LearnR=1, DiscoverC=1, DiscoverR=1, ExploreProb=1, toynames=[0, 1]):
         """
         toys[]: List of toy objects.
         Learn (bool): Does the agent care about the learner's experience with the taught toy?
-        Teach (bool): Does the agent care about the teacher's costs and rewards?
         ExploreProb (float): Probability that the agent will choose to explore the other toy.
         Discover (bool): does the agent care about the costs and rewards associated with discovery?
         teacherreward (string): "Constant" or "Variable". Determines if teacher gets a constant reward for teaching or not.
@@ -21,13 +20,10 @@ class Agent(object):
         self.costs = [i.cost for i in self.toys]
         self.ExploreProb = ExploreProb
         self.UseLearnC = LearnC
-        self.UseTeachC = TeachC
         self.UseDiscoverC = DiscoverC
         self.UseLearnR = LearnR
-        self.UseTeachR = TeachR
         self.UseDiscoverR = DiscoverR
         self.toynames = toynames
-        self.teacherreward = teacherreward
 
     def TeachToy(self, toyid):
         """
@@ -36,11 +32,6 @@ class Agent(object):
         if toyid < 0 or toyid > len(self.toys):
             print "Error: No such toy"
             return None
-        [c_T, r_T] = self.toys[toyid].Teach(self.teacherreward)
-        if not self.UseTeachR:
-            r_T = 0
-        if not self.UseTeachC:
-            c_T = 0
         # If agent cares about learner's costs and rewards with taugh toy.
         [c_L, r_L] = self.toys[toyid].Play(self.toys[toyid].activation)
         if not self.UseLearnR:
@@ -56,7 +47,7 @@ class Agent(object):
         if not self.UseDiscoverC:
             c_D = 0
         # return costs and rewards
-        return [c_T + c_L + c_D, r_T + r_L + r_D]
+        return [c_L + c_D, r_L + r_D]
 
     def Teach(self, utilities=False):
         """

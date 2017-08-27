@@ -19,10 +19,10 @@ class Toy(object):
             return None
         self.reward = reward
         self.expcost = None
-        # Hacky code. I already know the expected cost so no need to keep
+        # We already know the expected exploration costs for these, so hardcoding them
         # recomputing it!
-        if self.buttons == 6 and length(self.action) == 2:
-            self.expcost = -22.063199999999998
+        if self.buttons == 7 and length(self.action) == 2:
+            self.expcost = -28
         if self.buttons == 1 and length(self.action) == 1:
             self.expcost = -1
 
@@ -38,7 +38,7 @@ class Toy(object):
         #reward = self.reward if set(action) == set(self.activation) else 0
         return [cost, reward]
 
-    def Discover(self, samples=1000):
+    def Discover(self, samples=1000, analytic=False):
         # Get expected cost by assuming that learner starts with the simplest
         # hypotheses
         if self.expcost is not None:
@@ -62,18 +62,6 @@ class Toy(object):
                         break
             self.expcost = np.mean(costs)
         return([self.expcost, self.reward])
-
-    def Teach(self, rewardtype="Constant"):
-        #############################
-        # Should the the teacher get a reward? Should it depend on whether the toy is cool?
-        # For now, the teacher gets a constant reward of 1 for teaching.
-        #############################
-        if (rewardtype == "Constant"):
-            # Get a constant reward
-            return([self.cost * len(self.activation), 1])
-        else:
-            # Get a reward for watching the toy
-            return([self.cost * len(self.activation), self.reward])
 
     def ActionSpace(self, size=-1):
         # Get the list of all collections of button presses
