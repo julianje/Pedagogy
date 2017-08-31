@@ -52,7 +52,7 @@ for CoolReward in CoolRewardSpace:
     LameRewardLimit = int(round(2*CoolReward*(1-PercentageCooler)))
     ## These are two different parameters for
     ## probability that child will explore second toy
-    ExploreProbabilities = [0.25, 0.5, 0.75, 0.99]
+    ExploreProbabilities = [0.3, 0.5, 0.7, 0.99]
     # Run family of models on all four conditions
     # Run each model twice, one with low exploration pobability and one with
     # high probability.
