@@ -4,13 +4,13 @@ import sys
 
 class Agent(object):
 
-    def __init__(self, toys=[], LearnC=1, LearnR=1, DiscoverC=1, DiscoverR=1, ExploreProb=1, toynames=[0, 1]):
+    def __init__(self, toys=[], LearnC=1, LearnR=1, DiscoverC=1, DiscoverR=1, ExploreProb=1, ObservationReward=1, toynames=[0, 1]):
         """
         toys[]: List of toy objects.
         Learn (bool): Does the agent care about the learner's experience with the taught toy?
         ExploreProb (float): Probability that the agent will choose to explore the other toy.
         Discover (bool): does the agent care about the costs and rewards associated with discovery?
-        teacherreward (string): "Constant" or "Variable". Determines if teacher gets a constant reward for teaching or not.
+        ObservationReward (bool): does the learner get an observation reward when they see the teacher demonstrate the toy?
         """
         if len(toys) != 2:
             print "Error: Code only supports reasoning about two toys."
@@ -23,9 +23,7 @@ class Agent(object):
         self.UseDiscoverC = DiscoverC
         self.UseLearnR = LearnR
         self.UseDiscoverR = DiscoverR
-        ###########
-        self.UseTeacherR = True
-        ###########
+        self.UseObservationR = ObservationReward
         self.toynames = toynames
 
     def TeachToy(self, toyid):
@@ -50,7 +48,7 @@ class Agent(object):
         if not self.UseDiscoverC:
             c_D = 0
         ###########
-        if self.UseTeacherR:
+        if self.UseObservationR:
             r_L *= 2
         ###########
         # return costs and rewards

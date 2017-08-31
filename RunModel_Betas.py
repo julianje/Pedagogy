@@ -2,6 +2,7 @@ from Toy import *
 from Agent import *
 import sys
 
+HighestReward = 116
 
 # Master function that creates a family of models given two toys and gets
 # all the model choices.
@@ -39,13 +40,13 @@ def GetModelChoices(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy0", T
                      str(ToyB.reward) + ",0,1,0,1," + str(ExploreProb) + "," + str(A_RewardOnly) + "\n")
 
 # Up to what value can the red toy's reward be?
-CoolRewardSpace = range(1, 57)
-LameRewardSpace = range(1, 57)
+CoolRewardSpace = range(1, HighestReward+1, 2)
+LameRewardSpace = range(1, HighestReward+1, 2)
 
 for CoolReward in CoolRewardSpace:
     ## These are two different parameters for
     ## probability that child will explore second toy
-    ExploreProbabilities = [0.25, 0.5, 0.75, 0.99]
+    ExploreProbabilities = [0.3, 0.5, 0.7, 0.99]
     # Run family of models on all four conditions
     # Run each model twice, one with low exploration pobability and one with
     # high probability.

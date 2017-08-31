@@ -2,6 +2,7 @@ from Toy import *
 from Agent import *
 import sys
 
+HighestReward = 116
 
 # Master function that creates a family of models given two toys and gets
 # all the model choices.
@@ -14,33 +15,33 @@ def GetModelChoices(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy0", T
     # Params: Learner cost & reward, teacher cost & reward, discover cost & reward
     # Four main models: Use/Ignore learner's utility. Use/Ignore learner's
     # exploration
-    A_DiscoverOnly = Agent([ToyA, ToyB], 0, 0, 1, 1, ExploreProb,
+    A_DiscoverOnly = Agent([ToyA, ToyB], 0, 0, 1, 1, 1, ExploreProb,
                  [ToyAName, ToyBName]).Teach()
-    A_InstructionOnly = Agent([ToyA, ToyB], 1, 1, 0, 0, ExploreProb,
+    A_InstructionOnly = Agent([ToyA, ToyB], 1, 1, 0, 0, 1, ExploreProb,
                  [ToyAName, ToyBName]).Teach()
-    A_FullModel = Agent([ToyA, ToyB], 1, 1, 1, 1, ExploreProb,
+    A_FullModel = Agent([ToyA, ToyB], 1, 1, 1, 1, 1, ExploreProb,
                  [ToyAName, ToyBName]).Teach()
-    A_CostsOnly = Agent([ToyA, ToyB], 1, 0, 1, 0, ExploreProb,
+    A_CostsOnly = Agent([ToyA, ToyB], 1, 0, 1, 0, 1, ExploreProb,
                  [ToyAName, ToyBName]).Teach()
-    A_RewardOnly = Agent([ToyA, ToyB], 0, 1, 0, 1, ExploreProb,
+    A_RewardOnly = Agent([ToyA, ToyB], 0, 1, 0, 1, 1, ExploreProb,
                  [ToyAName, ToyBName]).Teach()
     if header:
         sys.stdout.write("Condition,"+str(ToyAName)+"Reward,"+str(ToyBName) +
                          "Reward,LearnC,LearnR,DiscoverC,DiscoverR,ExploreProb,Decision\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",0,0,1,1," + str(ExploreProb) + "," + str(A_DiscoverOnly) + "\n")
+                     str(ToyB.reward) + ",0,0,1,1,1," + str(ExploreProb) + "," + str(A_DiscoverOnly) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",1,1,0,0," + str(ExploreProb) + "," + str(A_InstructionOnly) + "\n")
+                     str(ToyB.reward) + ",1,1,0,0,1," + str(ExploreProb) + "," + str(A_InstructionOnly) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",1,1,1,1," + str(ExploreProb) + "," + str(A_FullModel) + "\n")
+                     str(ToyB.reward) + ",1,1,1,1,1," + str(ExploreProb) + "," + str(A_FullModel) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",1,0,1,0," + str(ExploreProb) + "," + str(A_CostsOnly) + "\n")
+                     str(ToyB.reward) + ",1,0,1,0,1," + str(ExploreProb) + "," + str(A_CostsOnly) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
-                     str(ToyB.reward) + ",0,1,0,1," + str(ExploreProb) + "," + str(A_RewardOnly) + "\n")
+                     str(ToyB.reward) + ",0,1,0,1,1," + str(ExploreProb) + "," + str(A_RewardOnly) + "\n")
 
 # Up to what value can the red toy's reward be?
-CoolRewardSpace = range(1, 57)
-LameRewardSpace = range(1, 57)
+CoolRewardSpace = range(1, HighestReward+1, 2)
+LameRewardSpace = range(1, HighestReward+1, 2)
 
 for CoolReward in CoolRewardSpace:
     ## These are two different parameters for
