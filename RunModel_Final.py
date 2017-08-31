@@ -39,7 +39,7 @@ def GetModelChoices(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy0", T
                      str(ToyB.reward) + ",0,1,0,1," + str(ExploreProb) + "," + str(A_RewardOnly) + "\n")
 
 # Up to what value can the red toy's reward be?
-CoolRewardSpace = range(1, 57)
+CoolRewardSpace = range(1, 88, 2)
 
 for CoolReward in CoolRewardSpace:
     ## Empirical data from children's preferences

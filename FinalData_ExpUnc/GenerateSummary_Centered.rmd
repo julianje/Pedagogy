@@ -23,7 +23,7 @@ data$ExploreProb<-factor(data$ExploreProb)
 levels(data$ExploreProb)=c(".25 Exploration",".5 Exploration",".75 Exploration",".99 Exploration")
 levels(data$Decision)=c("Either","Red toy","Yellow toy")
 
-RangeLimit=56
+RangeLimit=84
 
 data <- data %>% filter(RedToyReward<=RangeLimit,YellowToyReward<=RangeLimit)
 
