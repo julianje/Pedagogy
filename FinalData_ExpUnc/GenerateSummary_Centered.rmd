@@ -16,7 +16,7 @@ library(ggvis, quietly=T, warn.conflicts=F)
 library(tidyr, quietly=T, warn.conflicts=F)
 library(knitr, quietly=T, warn.conflicts=F)
 library(boot, quietly=T, warn.conflicts=F)
-setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/FinalData/")
+setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/FinalData_ExpUnc/")
 data <- read.csv("Model_Betas.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,DiscoverC,DiscoverR))
 data$Condition<-as.character(data$Condition)
 data$ExploreProb<-factor(data$ExploreProb)
@@ -27,14 +27,17 @@ RangeLimit=56
 
 data <- data %>% filter(RedToyReward<=RangeLimit,YellowToyReward<=RangeLimit)
 
+# LEFT version
 ParamA = 1.875
 ParamB = 1
 
-#ParamA = 10
-#ParamB = 7.5274
-
+# MIDDLE version
 #ParamA = 6
 #ParamB = 4.15
+
+# RIGHT version
+#ParamA = 10
+#ParamB = 7.5274
 
 # First condition has rewards inverted inverted, so split:
 dataA = data %>% filter(Condition == "1: R&C")
@@ -83,6 +86,7 @@ Tempdat$Decision<-as.character(Tempdat$Decision)
 Noise = 0.1
 Tempdat$Perc = Tempdat$Perc*(1-Noise)+50*Noise
 Tempdat %>% ggplot(aes(x=Condition,y=Perc,fill=Decision))+geom_bar(stat="identity")+facet_grid(Model~ExploreProb)+theme_bw()+scale_fill_manual(values=c("#C7363D","#EBE549"))+scale_y_continuous("Percentage\nof choices")
+#Tempdat %>% filter(ExploreProb==".5 Exploration") %>% spread(Model,Perc) %>% write.csv("Results.csv",row.names=F)
 ```
 
 # Model fits. Using 50% exploration chance.

@@ -1,0 +1,9 @@
+"ExploreProb","Condition","Decision","Costs-Only","Exploration-Only","Full model","Instruction-Only","Rewards-Only"
+".5 Exploration","1: R&C","Red toy",5,33.2128183466129,6.60958053521553,23.5230943451645,22.3345113067085
+".5 Exploration","1: R&C","Yellow toy",95,66.7871816533871,93.3904194647845,76.4769056548355,77.6654886932915
+".5 Exploration","2: Diff. R","Red toy",50,22.3345113067085,77.6654886932915,77.6654886932915,77.6654886932915
+".5 Exploration","2: Diff. R","Yellow toy",50,77.6654886932915,22.3345113067085,22.3345113067085,22.3345113067085
+".5 Exploration","3: Diff. C","Red toy",5,5,5,95,50
+".5 Exploration","3: Diff. C","Yellow toy",95,95,95,5,50
+".5 Exploration","4: RvC","Red toy",5,6.28244429747393,36.6294709458907,78.7985185534414,77.6654886932915
+".5 Exploration","4: RvC","Yellow toy",95,93.7175557025261,63.3705290541093,21.2014814465586,22.3345113067085
