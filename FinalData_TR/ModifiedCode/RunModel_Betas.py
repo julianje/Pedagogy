@@ -27,7 +27,7 @@ def GetModelChoices(ToyA, ToyB, ConditionName, ExploreProb=1, ToyAName="Toy0", T
                  [ToyAName, ToyBName]).Teach()
     if header:
         sys.stdout.write("Condition,"+str(ToyAName)+"Reward,"+str(ToyBName) +
-                         "Reward,LearnC,LearnR,DiscoverC,DiscoverR,ExploreProb,Decision\n")
+                         "Reward,LearnC,LearnR,DiscoverC,DiscoverR,ObservationReward,ExploreProb,Decision\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
                      str(ToyB.reward) + ",0,0,1,1,1," + str(ExploreProb) + "," + str(A_DiscoverOnly) + "\n")
     sys.stdout.write(str(ConditionName)+","+str(ToyA.reward) + "," +
