@@ -22,7 +22,7 @@ class Toy(object):
         # We already know the expected exploration costs for these, so hardcoding them
         # recomputing it!
         if self.buttons == 7 and length(self.action) == 2:
-            self.expcost = -28
+            self.expcost = -29
         if self.buttons == 1 and length(self.action) == 1:
             self.expcost = -1
 
