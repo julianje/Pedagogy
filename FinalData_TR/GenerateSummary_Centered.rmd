@@ -20,18 +20,18 @@ setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/FinalData_TR/")
 data <- read.csv("Model_Betas.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,DiscoverC,DiscoverR))
 data$Condition<-as.character(data$Condition)
 data$ExploreProb<-factor(data$ExploreProb)
-levels(data$ExploreProb)=c(".25 Exploration",".5 Exploration",".75 Exploration",".Exploration certainty")
+levels(data$ExploreProb)=c(".3 Exploration",".5 Exploration",".7 Exploration",".99 Exploration")
 levels(data$Decision)=c("Either","Red toy","Yellow toy")
 
-RangeLimit=56
+RangeLimit=117
 
 data <- data %>% filter(RedToyReward<=RangeLimit,YellowToyReward<=RangeLimit)
 
 ParamA = 1.875
 ParamB = 1
 
-#ParamA = 10
-#ParamB = 7.5274
+ParamA = 10
+ParamB = 7.5274
 
 #ParamA = 6
 #ParamB = 4.15
@@ -77,6 +77,7 @@ ModelNames = data.frame(
   Model=c("1 1 1 1","1 0 1 0","0 1 0 1","1 1 0 0","0 0 1 1"),
   ModelName=c("Full model", "Costs-Only", "Rewards-Only", "Instruction-Only", "Exploration-Only")
 )
+ModelNames$ModelName = factor(ModelNames$ModelName, levels=c("Full model","Costs-Only","Rewards-Only","Instruction-Only","Exploration-Only"))
 Tempdat <- full_join(Simpledata,ModelNames,by="Model") %>%
   ungroup() %>% dplyr::select(-Model) %>% dplyr::rename(Model=ModelName)
 Tempdat$Decision<-as.character(Tempdat$Decision)

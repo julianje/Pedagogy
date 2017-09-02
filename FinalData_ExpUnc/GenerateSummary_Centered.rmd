@@ -16,14 +16,15 @@ library(ggvis, quietly=T, warn.conflicts=F)
 library(tidyr, quietly=T, warn.conflicts=F)
 library(knitr, quietly=T, warn.conflicts=F)
 library(boot, quietly=T, warn.conflicts=F)
+library(forcats, quietly=T, warn.conflicts=F)
 setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/FinalData_ExpUnc/")
 data <- read.csv("Model_Betas.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,DiscoverC,DiscoverR))
 data$Condition<-as.character(data$Condition)
 data$ExploreProb<-factor(data$ExploreProb)
-levels(data$ExploreProb)=c(".25 Exploration",".5 Exploration",".75 Exploration",".99 Exploration")
+levels(data$ExploreProb)=c(".3 Exploration",".5 Exploration",".7 Exploration",".99 Exploration")
 levels(data$Decision)=c("Either","Red toy","Yellow toy")
 
-RangeLimit=84
+RangeLimit=87
 
 data <- data %>% filter(RedToyReward<=RangeLimit,YellowToyReward<=RangeLimit)
 
@@ -36,8 +37,8 @@ ParamB = 1
 #ParamB = 4.15
 
 # RIGHT version
-#ParamA = 10
-#ParamB = 7.5274
+ParamA = 10
+ParamB = 7.5274
 
 # First condition has rewards inverted inverted, so split:
 dataA = data %>% filter(Condition == "1: R&C")
@@ -80,6 +81,7 @@ ModelNames = data.frame(
   Model=c("1 1 1 1","1 0 1 0","0 1 0 1","1 1 0 0","0 0 1 1"),
   ModelName=c("Full model", "Costs-Only", "Rewards-Only", "Instruction-Only", "Exploration-Only")
 )
+ModelNames$ModelName = factor(ModelNames$ModelName, levels=c("Full model","Costs-Only","Rewards-Only","Instruction-Only","Exploration-Only"))
 Tempdat <- full_join(Simpledata,ModelNames,by="Model") %>%
   ungroup() %>% dplyr::select(-Model) %>% dplyr::rename(Model=ModelName)
 Tempdat$Decision<-as.character(Tempdat$Decision)

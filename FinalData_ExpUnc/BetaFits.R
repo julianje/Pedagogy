@@ -67,3 +67,21 @@ data = data.frame(
   source=rep(c("Lights","Music"),each=length(xrange))
 )
 data %>% ggplot(aes(x=range,y=density,group=source,color=source))+geom_line()+theme_bw()
+
+# Calculate the probability that these betas generating the empirical data.
+GetPreference = function(samples,alpha,beta){
+  Data = data.frame(
+    RA = rbeta(samples,alpha,beta),
+    RB = rbeta(samples,beta,alpha)
+  ) %>% mutate(Win=RA>RB)
+  return(prop.table(table(Data$Win))[1])
+  }
+
+set.seed(2938) # for reproducibility
+GetPreference(100000,1.875,1)
+GetPreference(100000,10,7.5274)
+GetPreference(100000,6,4.15)
+
+# The code above shows that, although our search of beta parameters had a 10% tolerance (75-85%),
+# the beta parameters are much closer to the empirical estimates. The left, middle, and right set
+# of parameters predict 19.28%, 19.48%, 19.61% of children preferring the 'music' toy.

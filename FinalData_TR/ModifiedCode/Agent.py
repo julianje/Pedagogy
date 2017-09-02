@@ -47,12 +47,9 @@ class Agent(object):
             r_D = 0
         if not self.UseDiscoverC:
             c_D = 0
-        ###########
-        if self.UseObservationR:
-            r_L *= 2
-        ###########
+        r_O = r_L if self.UseObservationR else 0
         # return costs and rewards
-        return [c_L + c_D, r_L + r_D]
+        return [c_L + c_D, r_L + r_D + r_O]
 
     def Teach(self, utilities=False):
         """
