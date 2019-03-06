@@ -1,0 +1,86 @@
+---
+title: "Pedagogy model"
+output:
+  html_document:
+    theme: spacelab
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+```{r Load data and packages, echo=FALSE}
+library(plyr, quietly=T, warn.conflicts=F)
+library(dplyr, quietly=T, warn.conflicts=F)
+library(ggplot2, quietly=T, warn.conflicts=F)
+library(ggvis, quietly=T, warn.conflicts=F)
+library(tidyr, quietly=T, warn.conflicts=F)
+library(knitr, quietly=T, warn.conflicts=F)
+library(boot, quietly=T, warn.conflicts=F)
+library(forcats, quietly=T, warn.conflicts=F)
+setwd("~/Documents/Projects/Models/Pedagogy/Pedagogy/FinalData_ExpUnc_NewModels/")
+data <- read.csv("NewModels_Betas.csv") %>% tbl_df %>% mutate(Model=paste(LearnC,LearnR,DiscoverC,DiscoverR))
+data$Condition<-as.character(data$Condition)
+data$ExploreProb<-factor(data$ExploreProb)
+levels(data$ExploreProb)=c(".3 Exploration",".5 Exploration",".7 Exploration",".99 Exploration")
+levels(data$Decision)=c("Either","Red toy","Yellow toy")
+
+RangeLimit=115
+
+data <- data %>% filter(RedToyReward<=RangeLimit,YellowToyReward<=RangeLimit)
+
+# THIS ONE IS THE MAIN MODEl: LEFT
+# LEFT version
+#ParamA = 1.875
+#ParamB = 1
+
+# MIDDLE version
+#ParamA = 6
+#ParamB = 4.15
+
+# RIGHT version
+ParamA = 10
+ParamB = 7.5274
+
+data <- data %>% mutate(prob=dbeta(RedToyReward/RangeLimit,ParamA,ParamB)*dbeta(YellowToyReward/RangeLimit,ParamB,ParamA))
+
+Summarydata <- data %>%
+  dplyr::group_by(ExploreProb, Condition, Model, Decision) %>%
+  dplyr::summarise(Percentage=sum(prob))
+
+# We have some entries missing and we need them!
+NullProbs <- Summarydata %>% dplyr::select(-Percentage) %>% table %>% data.frame %>% filter(Freq==0) %>%
+  dplyr::rename(Percentage=Freq)
+
+Summarydata <- rbind(ungroup(Summarydata),NullProbs)
+
+# Create alternate data frame where either gets split into the other two categories (as children will choose at random).
+ConcreteChoices <- Summarydata %>% filter(Decision %in% c("Yellow toy","Red toy"))
+NoPrefChoices <- Summarydata %>% filter(Decision %in% c("Either")) %>% mutate(PercAdd=Percentage/2) %>% dplyr::select(-Percentage,-Decision)
+
+Simpledata <- full_join(ConcreteChoices,NoPrefChoices,by=c("ExploreProb","Condition","Model")) %>%
+  mutate(Perc=Percentage+PercAdd) %>% dplyr::select(-Percentage,-PercAdd) %>%
+  group_by(ExploreProb,Condition,Model) %>% do(data.frame(
+    Decision=.$Decision,
+    Perc=.$Perc*100/sum(.$Perc)
+  ))
+```
+
+# Full model predictions
+
+Model predictions as a function of exploration certainty. Values 0.25, and 0.75 indicate the probability that the learner will explore the untaught toy.
+
+
+```{r MegaSummaryb, echo=FALSE, fig.width = 15, fig.height = 5}
+ModelNames = data.frame(
+  Model=c("1 1 1 1","1 0 1 0","0 1 0 1","1 1 0 0","0 0 1 1"),
+  ModelName=c("Full model", "Costs-Only", "Rewards-Only", "Instruction-Only", "Exploration-Only")
+)
+ModelNames$ModelName = factor(ModelNames$ModelName, levels=c("Full model","Costs-Only","Rewards-Only","Instruction-Only","Exploration-Only"))
+Tempdat <- full_join(Simpledata,ModelNames,by="Model") %>%
+  ungroup() %>% dplyr::select(-Model) %>% dplyr::rename(Model=ModelName)
+Tempdat$Decision<-as.character(Tempdat$Decision)
+Noise = 0.1
+Tempdat$Perc = Tempdat$Perc*(1-Noise)+50*Noise
+Tempdat %>% ggplot(aes(x=Condition,y=Perc,fill=Decision))+geom_bar(stat="identity")+facet_grid(Model~ExploreProb)+theme_bw()+scale_fill_manual(values=c("#C7363D","#EBE549"))+scale_y_continuous("Percentage\nof choices")
+#Tempdat %>% filter(ExploreProb==".5 Exploration") %>% spread(Model,Perc) %>% write.csv("Results.csv",row.names=F)
+```
